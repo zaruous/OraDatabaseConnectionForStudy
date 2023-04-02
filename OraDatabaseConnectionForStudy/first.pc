@@ -1,0 +1,114 @@
+#pragma warning(disable:4996) //경고 메시지를 오류 목록에 표시하지 않게 함
+exec sql include sqlca;  
+
+#include<stdio.h>  
+#include<conio.h>  
+#include<stdlib.h>  
+#include <oraca.h>
+
+EXEC SQL BEGIN DECLARE SECTION;
+	char user_name[20], password[20];  
+
+    struct Employee {
+        int empno;
+        char ename[20];
+        char job[20];
+        int salary;
+    };
+EXEC SQL END DECLARE SECTION;
+
+
+
+/*
+void printHello(){
+	
+	EXEC SQL BEGIN DECLARE SECTION;
+	char username[] = "tester1";
+	char password[] = "1";
+	char message[32];
+	EXEC SQL END DECLARE SECTION;
+
+	EXEC SQL CONNECT :username IDENTIFIED BY :password;
+	if(sqlca.sqlcode != 0) {
+        printf("[ERROR] Connect Error SQL_MSG : [%]d\n",
+                sqlca.sqlerrm.sqlerrmc);
+        exit(0);
+    }
+
+	printf("connected!");
+
+	EXEC SQL DECLARE C1 CURSOR FOR
+		SELECT 'Hello, Pro*C/C++ World!' AS Message FROM DUAL;
+	EXEC SQL OPEN C1;
+	EXEC SQL WHENEVER NOT FOUND DO BREAK;
+	for (;;)
+	{
+		EXEC SQL FETCH C1 INTO :message;
+		printf("Message\n");
+		printf("-----------------------\n");
+		printf("%s\n", message);
+	}
+	EXEC SQL CLOSE C1;
+	EXEC SQL COMMIT RELEASE;
+	return 0;
+}
+
+
+void helloInput(){
+	printf("Enter the user name");  
+	scanf("%s",user_name);  
+	printf("Enter the password");  
+	scanf("%s",password);  
+	exec sql connect :user_name identified by :password;  
+	if(sqlca.sqlcode==0)  
+	printf("Success");  
+	else  
+	printf("Error code:%d\n Error message:%s",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);  
+	getch();  
+}
+*/
+
+/*
+ * ORACA = YES는 ORACA를 사용하기 위해 필히 기술해야 함.
+ * */
+
+EXEC ORACLE OPTION (oraca = yes);
+
+void main()  
+{  
+	oraca.oradbgf = 1;      /* 모든 필드 활성화 */
+	oraca.orastxtf = 3;     /* 모든 SQL 문장 보존 */
+    oraca.oracchf = 1;      /* 성능 정보 수집 */
+
+	EXEC SQL BEGIN DECLARE SECTION;
+		char username[] = "tester1";
+		char password[] = "tester1";
+		char message[32];
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT :username IDENTIFIED BY :password;
+
+
+	if(sqlca.sqlcode != 0) {
+        printf("[ERROR] Connect Error SQL_MSG : [%]d\n", sqlca.sqlerrm.sqlerrmc);
+        exit(0);
+    }
+
+
+    EXEC SQL DECLARE C1 CURSOR FOR
+        SELECT 'Hello, Pro*C/C++ World!' AS Message FROM DUAL;
+    EXEC SQL OPEN C1;
+    EXEC SQL WHENEVER NOT FOUND DO BREAK;
+    for (;;)
+    {
+        EXEC SQL FETCH C1 INTO :message;
+        printf("Message\n");
+        printf("-----------------------\n");
+        printf("%s\n", message);
+    }
+    EXEC SQL CLOSE C1;
+    EXEC SQL COMMIT RELEASE;
+    return 0;
+}  
+
+

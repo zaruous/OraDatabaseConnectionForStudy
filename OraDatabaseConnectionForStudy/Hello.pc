@@ -1,0 +1,28 @@
+#include <stdio.h>
+ 
+EXEC SQL INCLUDE SQLCA;
+ 
+int main( int argc, char* argv[] )
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    char username[] = "tester1";
+    char password[] = "tester1";
+    char message[32];
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL CONNECT :username IDENTIFIED BY :password;
+    EXEC SQL DECLARE C1 CURSOR FOR
+        SELECT 'Hello, Pro*C/C++ World!' AS Message FROM DUAL;
+    EXEC SQL OPEN C1;
+    EXEC SQL WHENEVER NOT FOUND DO BREAK;
+    for (;;)
+    {
+        EXEC SQL FETCH C1 INTO :message;
+        printf("Message\n");
+        printf("-----------------------\n");
+        printf("%s\n", message);
+    }
+    EXEC SQL CLOSE C1;
+    EXEC SQL COMMIT RELEASE;
+    return 0;
+}

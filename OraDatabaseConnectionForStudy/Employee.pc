@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sqlca.h>
+
+EXEC SQL BEGIN DECLARE SECTION;
+    struct Employee {
+        int empno;
+        char ename[20];
+        char job[20];
+        int salary;
+    };
+EXEC SQL END DECLARE SECTION;
+
+void fetch_employee(struct Employee* emp) {
+    /* EMP 테이블에서 empno, ename, job 필드를 가져옵니다. */
+    EXEC SQL SELECT empno, ename, job INTO :emp->empno, :emp->ename, :emp->job
+             FROM emp
+             WHERE empno = 1;
+}
+
+int main() {
+    EXEC SQL BEGIN DECLARE SECTION;
+        struct Employee emp;
+    EXEC SQL END DECLARE SECTION;
+
+    EXEC SQL BEGIN DECLARE SECTION;
+        char username[] = "tester1";
+        char password[] = "tester1";
+        char message[32];
+    EXEC SQL END DECLARE SECTION;
+
+
+     EXEC SQL CONNECT :username IDENTIFIED BY :password;
+
+
+
+    /* fetch_employee() 함수를 호출하여 데이터를 가져와서 emp 구조체에 저장합니다. */
+    fetch_employee(&emp);
+
+    printf("Employee number: %d\n", emp.empno);
+    printf("Employee name: %s\n", emp.ename);
+    printf("Job title: %s\n", emp.job);
+    printf("Salary: %d\n", emp.salary);
+
+    
+    EXEC SQL COMMIT RELEASE;
+    return 0;
+}
