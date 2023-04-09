@@ -18,6 +18,8 @@
     <None Include="..\..\..\..\Downloads\compile\ponce" />
     <None Include="..\..\..\..\Downloads\compile\compile.cmd" />
     <None Include="Employee.pc" />
+    <None Include="first.pc" />
+    <None Include="sample3.pc" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\..\..\..\..\..\app\KYJ\virtual\product\12.2.0\dbhome_1\precomp\lib\orasql12.lib">
@@ -28,7 +30,7 @@
     </Library>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Basic.cpp">
+    <ClCompile Include="first.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

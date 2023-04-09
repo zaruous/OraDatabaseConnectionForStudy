@@ -130,7 +130,7 @@ static const int IAPFTL  = 535;
 extern void sqliem(unsigned char *, signed int *);
 
  static const char *sq0002 = 
-"select 'Hello, Pro*C/C++ World!' Message  from DUAL            ";
+"select EMPNO ,ENAME ,SALARY  from EMP            ";
 
 typedef struct { unsigned short len; unsigned char arr[1]; } VARCHAR;
 typedef struct { unsigned short len; unsigned char arr[1]; } varchar;
@@ -138,16 +138,21 @@ typedef struct { unsigned short len; unsigned char arr[1]; } varchar;
 /* cud (compilation unit data) array */
 static const short sqlcud0[] =
 {13,4130,846,0,0,
-5,0,0,0,0,0,27,89,0,0,4,4,0,1,0,1,97,0,0,1,97,0,0,1,10,0,0,1,10,0,0,
-36,0,0,2,63,0,9,100,0,0,0,0,0,1,0,
-51,0,0,2,0,0,13,104,0,0,1,0,0,1,0,2,97,0,0,
-70,0,0,2,0,0,15,109,0,0,0,0,0,1,0,
-85,0,0,3,0,0,30,110,0,0,0,0,0,1,0,
+5,0,0,0,0,0,27,42,0,0,4,4,0,1,0,1,97,0,0,1,97,0,0,1,10,0,0,1,10,0,0,
+36,0,0,2,49,0,9,52,0,0,0,0,0,1,0,
+51,0,0,2,0,0,15,55,0,0,0,0,0,1,0,
+66,0,0,3,0,0,30,59,0,0,0,0,0,1,0,
 };
 
 
-#pragma warning(disable:4996) //경고 메시지를 오류 목록에 표시하지 않게 함
-/* exec sql include sqlca;  
+#pragma warning(disable:4996)
+
+/* exec sql begin declare section; */ 
+
+    char user_name[20], password[20];
+/* exec sql end declare section; */ 
+
+/* exec sql include sqlca;
  */ 
 /*
  * $Header: precomp/public/sqlca.h /osds/1 2011/08/02 23:12:16 pnayak Exp $ sqlca.h 
@@ -250,101 +255,44 @@ SQLCA_STORAGE_CLASS struct sqlca sqlca
 /* end SQLCA */
 
 
-#include<stdio.h>  
-#include<conio.h>  
-#include<stdlib.h>  
-#include <oraca.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-/* EXEC SQL BEGIN DECLARE SECTION; */ 
+/* Declare a host structure tag. */
+struct
+{
+    int EMPNO[38];
+    char ENAME[20];
+    int SALARY[38];
+} emp_rec;
 
-	char user_name[20], password[20];  
+int num_ret;
 
-    struct Employee {
-        int empno;
-        char ename[20];
-        char job[20];
-        int salary;
-    };
-/* EXEC SQL END DECLARE SECTION; */ 
+void print_rows()
+{
+    int i;
 
+    printf("\nNumber  Employee  Salary");
+    printf("\n------  --------  -------\n");
 
-
-
-/*
-void printHello(){
-	
-	EXEC SQL BEGIN DECLARE SECTION;
-	char username[] = "tester1";
-	char password[] = "1";
-	char message[32];
-	EXEC SQL END DECLARE SECTION;
-
-	EXEC SQL CONNECT :username IDENTIFIED BY :password;
-	if(sqlca.sqlcode != 0) {
-        printf("[ERROR] Connect Error SQL_MSG : [%]d\n",
-                sqlca.sqlerrm.sqlerrmc);
-        exit(0);
-    }
-
-	printf("connected!");
-
-	EXEC SQL DECLARE C1 CURSOR FOR
-		SELECT 'Hello, Pro*C/C++ World!' AS Message FROM DUAL;
-	EXEC SQL OPEN C1;
-	EXEC SQL WHENEVER NOT FOUND DO BREAK;
-	for (;;)
-	{
-		EXEC SQL FETCH C1 INTO :message;
-		printf("Message\n");
-		printf("-----------------------\n");
-		printf("%s\n", message);
-	}
-	EXEC SQL CLOSE C1;
-	EXEC SQL COMMIT RELEASE;
-	return 0;
+    for (i = 0; i < sqlca.sqlerrd[1]; i++)
+        printf("%d    %s  %8.2f\n", emp_rec.EMPNO[i],
+            emp_rec.ENAME[i], emp_rec.SALARY[i]);
 }
 
+int main()
+{
+    /* user_name과 password 변수 초기화 */
+    strcpy(user_name, "tester1");
+    strcpy(password, "tester1");
 
-void helloInput(){
-	printf("Enter the user name");  
-	scanf("%s",user_name);  
-	printf("Enter the password");  
-	scanf("%s",password);  
-	exec sql connect :user_name identified by :password;  
-	if(sqlca.sqlcode==0)  
-	printf("Success");  
-	else  
-	printf("Error code:%d\n Error message:%s",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);  
-	getch();  
-}
-*/
+    printf("username %s password %s ", user_name, password);
 
-/*
- * ORACA = YES는 ORACA를 사용하기 위해 필히 기술해야 함.
- * */
-
-/* EXEC ORACLE OPTION (oraca = yes); */ 
-
-
-void main()  
-{  
-	oraca.oradbgf = 1;      /* 모든 필드 활성화 */
-	oraca.orastxtf = 3;     /* 모든 SQL 문장 보존 */
-    oraca.oracchf = 1;      /* 성능 정보 수집 */
-
-	/* EXEC SQL BEGIN DECLARE SECTION; */ 
-
-		char username[] = "tester1";
-		char password[] = "tester";
-		char message[32];
-    /* EXEC SQL END DECLARE SECTION; */ 
-
-
-    /* EXEC SQL CONNECT :username IDENTIFIED BY :password; */ 
+    /* exec sql connect :user_name identified by :password; */ 
 
 {
     struct sqlexd sqlstm;
-    sqlorat((void **)0, &sqlctx, &oraca);
     sqlstm.sqlvsn = 13;
     sqlstm.arrsiz = 4;
     sqlstm.sqladtp = &sqladt;
@@ -355,17 +303,17 @@ void main()
     sqlstm.sqlest = (unsigned char  *)&sqlca;
     sqlstm.sqlety = (unsigned short)4352;
     sqlstm.occurs = (unsigned int  )0;
-    sqlstm.sqhstv[0] = (         void  *)username;
-    sqlstm.sqhstl[0] = (unsigned int  )0;
-    sqlstm.sqhsts[0] = (         int  )0;
+    sqlstm.sqhstv[0] = (         void  *)user_name;
+    sqlstm.sqhstl[0] = (unsigned int  )20;
+    sqlstm.sqhsts[0] = (         int  )20;
     sqlstm.sqindv[0] = (         void  *)0;
     sqlstm.sqinds[0] = (         int  )0;
     sqlstm.sqharm[0] = (unsigned int  )0;
     sqlstm.sqadto[0] = (unsigned short )0;
     sqlstm.sqtdso[0] = (unsigned short )0;
     sqlstm.sqhstv[1] = (         void  *)password;
-    sqlstm.sqhstl[1] = (unsigned int  )0;
-    sqlstm.sqhsts[1] = (         int  )0;
+    sqlstm.sqhstl[1] = (unsigned int  )20;
+    sqlstm.sqhsts[1] = (         int  )20;
     sqlstm.sqindv[1] = (         void  *)0;
     sqlstm.sqinds[1] = (         int  )0;
     sqlstm.sqharm[1] = (unsigned int  )0;
@@ -389,22 +337,20 @@ void main()
 }
 
 
+    if (sqlca.sqlcode == 0)
+        printf("Success");
+    else
+        printf("Error code:%d\nError message:%s", sqlca.sqlcode, sqlca.sqlerrm.sqlerrmc);
+
+    /* SQL 커서를 사용하여 데이터베이스에서 데이터를 검색하고 출력 */
+    /* EXEC SQL DECLARE c1 CURSOR FOR
+        SELECT EMPNO, ENAME, SALARY FROM EMP; */ 
 
 
-	if(sqlca.sqlcode != 0) {
-        printf("[ERROR] Connect Error SQL_MSG : [%]d\n", sqlca.sqlerrm.sqlerrmc);
-        exit(0);
-    }
-
-
-    /* EXEC SQL DECLARE C1 CURSOR FOR
-        SELECT 'Hello, Pro*C/C++ World!' AS Message FROM DUAL; */ 
-
-    /* EXEC SQL OPEN C1; */ 
+    /* EXEC SQL OPEN c1; */ 
 
 {
     struct sqlexd sqlstm;
-    sqlorat((void **)0, &sqlctx, &oraca);
     sqlstm.sqlvsn = 13;
     sqlstm.arrsiz = 4;
     sqlstm.sqladtp = &sqladt;
@@ -423,66 +369,18 @@ void main()
 }
 
 
-    /* EXEC SQL WHENEVER NOT FOUND DO BREAK; */ 
-
-    for (;;)
-    {
-        /* EXEC SQL FETCH C1 INTO :message; */ 
-
-{
-        struct sqlexd sqlstm;
-        sqlorat((void **)0, &sqlctx, &oraca);
-        sqlstm.sqlvsn = 13;
-        sqlstm.arrsiz = 4;
-        sqlstm.sqladtp = &sqladt;
-        sqlstm.sqltdsp = &sqltds;
-        sqlstm.iters = (unsigned int  )1;
-        sqlstm.offset = (unsigned int  )51;
-        sqlstm.selerr = (unsigned short)1;
-        sqlstm.sqlpfmem = (unsigned int  )0;
-        sqlstm.cud = sqlcud0;
-        sqlstm.sqlest = (unsigned char  *)&sqlca;
-        sqlstm.sqlety = (unsigned short)4352;
-        sqlstm.occurs = (unsigned int  )0;
-        sqlstm.sqfoff = (           int )0;
-        sqlstm.sqfmod = (unsigned int )2;
-        sqlstm.sqhstv[0] = (         void  *)message;
-        sqlstm.sqhstl[0] = (unsigned int  )32;
-        sqlstm.sqhsts[0] = (         int  )0;
-        sqlstm.sqindv[0] = (         void  *)0;
-        sqlstm.sqinds[0] = (         int  )0;
-        sqlstm.sqharm[0] = (unsigned int  )0;
-        sqlstm.sqadto[0] = (unsigned short )0;
-        sqlstm.sqtdso[0] = (unsigned short )0;
-        sqlstm.sqphsv = sqlstm.sqhstv;
-        sqlstm.sqphsl = sqlstm.sqhstl;
-        sqlstm.sqphss = sqlstm.sqhsts;
-        sqlstm.sqpind = sqlstm.sqindv;
-        sqlstm.sqpins = sqlstm.sqinds;
-        sqlstm.sqparm = sqlstm.sqharm;
-        sqlstm.sqparc = sqlstm.sqharc;
-        sqlstm.sqpadto = sqlstm.sqadto;
-        sqlstm.sqptdso = sqlstm.sqtdso;
-        sqlcxt((void **)0, &sqlctx, &sqlstm, &sqlfpn);
-        if (sqlca.sqlcode == 1403) break;
-}
 
 
-        printf("Message\n");
-        printf("-----------------------\n");
-        printf("%s\n", message);
-    }
-    /* EXEC SQL CLOSE C1; */ 
+    /* EXEC SQL CLOSE c1; */ 
 
 {
     struct sqlexd sqlstm;
-    sqlorat((void **)0, &sqlctx, &oraca);
     sqlstm.sqlvsn = 13;
     sqlstm.arrsiz = 4;
     sqlstm.sqladtp = &sqladt;
     sqlstm.sqltdsp = &sqltds;
     sqlstm.iters = (unsigned int  )1;
-    sqlstm.offset = (unsigned int  )70;
+    sqlstm.offset = (unsigned int  )51;
     sqlstm.cud = sqlcud0;
     sqlstm.sqlest = (unsigned char  *)&sqlca;
     sqlstm.sqlety = (unsigned short)4352;
@@ -491,26 +389,27 @@ void main()
 }
 
 
-    /* EXEC SQL COMMIT RELEASE; */ 
+    printf("\nAu revoir.\n\n\n");
+
+    /* Disconnect from the database. */
+    /* EXEC SQL COMMIT WORK RELEASE; */ 
 
 {
     struct sqlexd sqlstm;
-    sqlorat((void **)0, &sqlctx, &oraca);
     sqlstm.sqlvsn = 13;
     sqlstm.arrsiz = 4;
     sqlstm.sqladtp = &sqladt;
     sqlstm.sqltdsp = &sqltds;
     sqlstm.iters = (unsigned int  )1;
-    sqlstm.offset = (unsigned int  )85;
+    sqlstm.offset = (unsigned int  )66;
     sqlstm.cud = sqlcud0;
     sqlstm.sqlest = (unsigned char  *)&sqlca;
     sqlstm.sqlety = (unsigned short)4352;
     sqlstm.occurs = (unsigned int  )0;
     sqlcxt((void **)0, &sqlctx, &sqlstm, &sqlfpn);
 }
+
 
 
     return 0;
-}  
-
-
+}

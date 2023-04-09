@@ -1,114 +1,62 @@
-#pragma warning(disable:4996) //경고 메시지를 오류 목록에 표시하지 않게 함
-exec sql include sqlca;  
+#pragma warning(disable:4996)
 
-#include<stdio.h>  
-#include<conio.h>  
-#include<stdlib.h>  
-#include <oraca.h>
+exec sql begin declare section;
+    char user_name[20], password[20];
+exec sql end declare section;
+exec sql include sqlca;
 
-EXEC SQL BEGIN DECLARE SECTION;
-	char user_name[20], password[20];  
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-    struct Employee {
-        int empno;
-        char ename[20];
-        char job[20];
-        int salary;
-    };
-EXEC SQL END DECLARE SECTION;
+/* Declare a host structure tag. */
+struct
+{
+    int EMPNO[38];
+    char ENAME[20];
+    int SALARY[38];
+} emp_rec;
 
+int num_ret;
 
+void print_rows()
+{
+    int i;
 
-/*
-void printHello(){
-	
-	EXEC SQL BEGIN DECLARE SECTION;
-	char username[] = "tester1";
-	char password[] = "1";
-	char message[32];
-	EXEC SQL END DECLARE SECTION;
+    printf("\nNumber  Employee  Salary");
+    printf("\n------  --------  -------\n");
 
-	EXEC SQL CONNECT :username IDENTIFIED BY :password;
-	if(sqlca.sqlcode != 0) {
-        printf("[ERROR] Connect Error SQL_MSG : [%]d\n",
-                sqlca.sqlerrm.sqlerrmc);
-        exit(0);
-    }
-
-	printf("connected!");
-
-	EXEC SQL DECLARE C1 CURSOR FOR
-		SELECT 'Hello, Pro*C/C++ World!' AS Message FROM DUAL;
-	EXEC SQL OPEN C1;
-	EXEC SQL WHENEVER NOT FOUND DO BREAK;
-	for (;;)
-	{
-		EXEC SQL FETCH C1 INTO :message;
-		printf("Message\n");
-		printf("-----------------------\n");
-		printf("%s\n", message);
-	}
-	EXEC SQL CLOSE C1;
-	EXEC SQL COMMIT RELEASE;
-	return 0;
+    for (i = 0; i < sqlca.sqlerrd[1]; i++)
+        printf("%d    %s  %8.2f\n", emp_rec.EMPNO[i],
+            emp_rec.ENAME[i], emp_rec.SALARY[i]);
 }
 
+int main()
+{
+    /* user_name과 password 변수 초기화 */
+    strcpy(user_name, "tester1");
+    strcpy(password, "tester1");
 
-void helloInput(){
-	printf("Enter the user name");  
-	scanf("%s",user_name);  
-	printf("Enter the password");  
-	scanf("%s",password);  
-	exec sql connect :user_name identified by :password;  
-	if(sqlca.sqlcode==0)  
-	printf("Success");  
-	else  
-	printf("Error code:%d\n Error message:%s",sqlca.sqlcode,sqlca.sqlerrm.sqlerrmc);  
-	getch();  
-}
-*/
+    printf("username %s password %s ", user_name, password);
 
-/*
- * ORACA = YES는 ORACA를 사용하기 위해 필히 기술해야 함.
- * */
+    exec sql connect :user_name identified by :password;
+    if (sqlca.sqlcode == 0)
+        printf("Success");
+    else
+        printf("Error code:%d\nError message:%s", sqlca.sqlcode, sqlca.sqlerrm.sqlerrmc);
 
-EXEC ORACLE OPTION (oraca = yes);
+    /* SQL 커서를 사용하여 데이터베이스에서 데이터를 검색하고 출력 */
+    EXEC SQL DECLARE c1 CURSOR FOR
+        SELECT EMPNO, ENAME, SALARY FROM EMP;
 
-void main()  
-{  
-	oraca.oradbgf = 1;      /* 모든 필드 활성화 */
-	oraca.orastxtf = 3;     /* 모든 SQL 문장 보존 */
-    oraca.oracchf = 1;      /* 성능 정보 수집 */
-
-	EXEC SQL BEGIN DECLARE SECTION;
-		char username[] = "tester1";
-		char password[] = "tester1";
-		char message[32];
-    EXEC SQL END DECLARE SECTION;
-
-    EXEC SQL CONNECT :username IDENTIFIED BY :password;
+    EXEC SQL OPEN c1;
 
 
-	if(sqlca.sqlcode != 0) {
-        printf("[ERROR] Connect Error SQL_MSG : [%]d\n", sqlca.sqlerrm.sqlerrmc);
-        exit(0);
-    }
+    EXEC SQL CLOSE c1;
+    printf("\nAu revoir.\n\n\n");
 
+    /* Disconnect from the database. */
+    EXEC SQL COMMIT WORK RELEASE;
 
-    EXEC SQL DECLARE C1 CURSOR FOR
-        SELECT 'Hello, Pro*C/C++ World!' AS Message FROM DUAL;
-    EXEC SQL OPEN C1;
-    EXEC SQL WHENEVER NOT FOUND DO BREAK;
-    for (;;)
-    {
-        EXEC SQL FETCH C1 INTO :message;
-        printf("Message\n");
-        printf("-----------------------\n");
-        printf("%s\n", message);
-    }
-    EXEC SQL CLOSE C1;
-    EXEC SQL COMMIT RELEASE;
     return 0;
-}  
-
-
+}

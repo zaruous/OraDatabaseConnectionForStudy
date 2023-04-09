@@ -2,6 +2,7 @@
  
 EXEC SQL INCLUDE SQLCA;
  
+
 int main( int argc, char* argv[] )
 {
     EXEC SQL BEGIN DECLARE SECTION;
