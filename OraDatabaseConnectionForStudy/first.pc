@@ -51,6 +51,16 @@ int main()
 
     EXEC SQL OPEN c1;
 
+    num_ret = 0;
+    do
+    {
+        EXEC SQL FETCH c1 INTO
+            :emp_rec.EMPNO[num_ret], :emp_rec.ENAME[num_ret], :emp_rec.SALARY[num_ret];
+
+        /* Print however many rows were returned. */
+        print_rows();
+        num_ret += sqlca.sqlerrd[1];        /* Add the number of rows returned. */
+    } while (sqlca.sqlcode == 0);
 
     EXEC SQL CLOSE c1;
     printf("\nAu revoir.\n\n\n");
